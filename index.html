@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="theme-color" content="#111315">
-  <meta name="description" content="SNAKE — Classic Arcade Experience. A minimal, elegant, and professional classic snake game.">
+  <meta name="theme-color" content="#0e1012">
+  <meta name="description" content="SNAKE — Classic Arcade Experience. A minimal, elegant, and professional classic snake game with multiple themes and bonus challenges.">
   <title>SNAKE — Classic Edition</title>
   <style>
     /* ==========================================================================
-       1. CSS RESET & DESIGN TOKENS
+       1. CSS RESET & COLOR THEMES
        ========================================================================== */
     :root {
-      /* Color Palette: Restrained Charcoal, Sage Green, Ivory */
+      /* Base Defaults: Sage Forest */
       --bg-canvas: #0e1012;
       --bg-surface: #15181b;
       --bg-surface-elevated: #1c2024;
@@ -25,28 +25,103 @@
 
       /* Snake & Accent Colors */
       --snake-head: #5f9972;
-      --snake-body: #487c5a;
-      --snake-body-tail: #386246;
+      --snake-body-start: #528a64;
+      --snake-body-end: #386246;
       --food-color: #f3eed9;
       --food-glow: rgba(243, 238, 217, 0.25);
-      --accent-green: #68a67d;
+      --bonus-color: #e5b958;
+      --bonus-glow: rgba(229, 185, 88, 0.35);
+      --accent-color: #68a67d;
 
       --danger-color: #c25953;
-
-      /* Grid & Board */
       --grid-line: rgba(255, 255, 255, 0.025);
       --board-border: #262c33;
 
-      /* Typography */
+      /* Typography & Metrics */
       --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", "Helvetica Neue", sans-serif;
       --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
 
-      /* Layout */
       --border-radius-sm: 6px;
       --border-radius-md: 10px;
       --border-radius-lg: 16px;
       --shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.45);
       --shadow-modal: 0 20px 48px rgba(0, 0, 0, 0.7);
+    }
+
+    /* Theme 2: Midnight Emerald */
+    body[data-theme="emerald"] {
+      --bg-canvas: #090e0c;
+      --bg-surface: #0f1714;
+      --bg-surface-elevated: #15221d;
+      --bg-surface-hover: #1c2d27;
+      --border-subtle: #1e332a;
+      --border-strong: #2a473b;
+      --snake-head: #2ecc71;
+      --snake-body-start: #27ae60;
+      --snake-body-end: #166534;
+      --food-color: #fef08a;
+      --food-glow: rgba(254, 240, 138, 0.3);
+      --bonus-color: #f59e0b;
+      --bonus-glow: rgba(245, 158, 11, 0.4);
+      --accent-color: #2ecc71;
+      --board-border: #1e332a;
+    }
+
+    /* Theme 3: Nordic Glacier */
+    body[data-theme="nordic"] {
+      --bg-canvas: #0b1118;
+      --bg-surface: #101924;
+      --bg-surface-elevated: #172433;
+      --bg-surface-hover: #1f3044;
+      --border-subtle: #22374d;
+      --border-strong: #314d6b;
+      --snake-head: #38bdf8;
+      --snake-body-start: #0284c7;
+      --snake-body-end: #075985;
+      --food-color: #e0f2fe;
+      --food-glow: rgba(224, 242, 254, 0.3);
+      --bonus-color: #f472b6;
+      --bonus-glow: rgba(244, 114, 182, 0.4);
+      --accent-color: #38bdf8;
+      --board-border: #22374d;
+    }
+
+    /* Theme 4: Amber Cyber */
+    body[data-theme="amber"] {
+      --bg-canvas: #12100e;
+      --bg-surface: #1a1714;
+      --bg-surface-elevated: #24201c;
+      --bg-surface-hover: #302b25;
+      --border-subtle: #383129;
+      --border-strong: #4f453a;
+      --snake-head: #f59e0b;
+      --snake-body-start: #d97706;
+      --snake-body-end: #92400e;
+      --food-color: #fef3c7;
+      --food-glow: rgba(254, 243, 199, 0.3);
+      --bonus-color: #ef4444;
+      --bonus-glow: rgba(239, 68, 68, 0.4);
+      --accent-color: #f59e0b;
+      --board-border: #383129;
+    }
+
+    /* Theme 5: Retro Matrix */
+    body[data-theme="retro"] {
+      --bg-canvas: #0a110a;
+      --bg-surface: #0f1a0f;
+      --bg-surface-elevated: #162416;
+      --bg-surface-hover: #1f331f;
+      --border-subtle: #223b22;
+      --border-strong: #2f522f;
+      --snake-head: #4ade80;
+      --snake-body-start: #22c55e;
+      --snake-body-end: #15803d;
+      --food-color: #bbf7d0;
+      --food-glow: rgba(187, 247, 208, 0.35);
+      --bonus-color: #facc15;
+      --bonus-glow: rgba(250, 204, 21, 0.4);
+      --accent-color: #4ade80;
+      --board-border: #223b22;
     }
 
     *, *::before, *::after {
@@ -60,12 +135,15 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
+      overflow-x: hidden;
+      max-width: 100vw;
       background-color: var(--bg-canvas);
       color: var(--text-primary);
       font-family: var(--font-family);
       line-height: 1.5;
       user-select: none;
       -webkit-user-select: none;
+      transition: background-color 0.3s ease;
     }
 
     body {
@@ -74,9 +152,10 @@
       align-items: center;
       justify-content: center;
       touch-action: manipulation;
+      overflow-x: hidden;
+      max-width: 100vw;
     }
 
-    /* Screen shake animation for game over */
     @keyframes screenShake {
       0%, 100% { transform: translate(0, 0); }
       20% { transform: translate(-3px, 2px); }
@@ -117,6 +196,26 @@
       }
     }
 
+    @media (max-width: 480px) {
+      .app-viewport {
+        padding: 8px;
+      }
+      .overlay-backdrop {
+        padding: 10px;
+      }
+      .overlay-card {
+        padding: 18px 12px;
+      }
+      .theme-chip {
+        font-size: 0.58rem;
+        height: 26px;
+      }
+      .header-bar {
+        padding: 6px 10px;
+        margin-bottom: 8px;
+      }
+    }
+
     /* ==========================================================================
        3. TOP HUD & HEADER
        ========================================================================== */
@@ -131,7 +230,8 @@
       border: 1px solid var(--border-subtle);
       border-radius: var(--border-radius-md);
       margin-bottom: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 0 28px -10px var(--accent-color);
+      transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
     }
 
     .hud-title-wrap {
@@ -151,12 +251,14 @@
     .hud-tag {
       font-size: 0.68rem;
       letter-spacing: 0.08em;
-      color: var(--accent-green);
+      color: var(--accent-color);
       text-transform: uppercase;
       font-weight: 600;
-      background: rgba(104, 166, 125, 0.12);
+      background: rgba(255, 255, 255, 0.06);
       padding: 1px 6px;
       border-radius: 4px;
+      transition: color 0.3s;
+      text-shadow: 0 0 8px currentColor;
     }
 
     .hud-metrics {
@@ -185,6 +287,32 @@
       font-weight: 700;
       color: var(--text-primary);
       font-variant-numeric: tabular-nums;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+    }
+
+    #hud-lives {
+      color: var(--danger-color);
+      letter-spacing: 2px;
+      text-shadow: 0 0 8px rgba(194, 89, 83, 0.6);
+    }
+
+    @keyframes lifeLostPulse {
+      0% { transform: scale(1); }
+      30% { transform: scale(1.5); color: #ff6b6b; text-shadow: 0 0 16px rgba(255, 107, 107, 0.9); }
+      100% { transform: scale(1); }
+    }
+
+    #hud-lives.pulse-life-lost {
+      animation: lifeLostPulse 0.5s ease;
+    }
+
+    @keyframes lifeLostFlash {
+      0% { background: rgba(194, 89, 83, 0.35); }
+      100% { background: rgba(194, 89, 83, 0); }
+    }
+
+    .life-lost-flash {
+      animation: lifeLostFlash 0.45s ease-out;
     }
 
     .hud-controls {
@@ -219,7 +347,7 @@
     }
 
     .icon-btn:focus-visible {
-      outline: 2px solid var(--accent-green);
+      outline: 2px solid var(--accent-color);
       outline-offset: 1px;
     }
 
@@ -237,8 +365,9 @@
       background: var(--bg-surface);
       border: 1px solid var(--board-border);
       border-radius: var(--border-radius-md);
-      box-shadow: var(--shadow-soft);
+      box-shadow: var(--shadow-soft), 0 0 50px -14px var(--accent-color), inset 0 0 50px rgba(0, 0, 0, 0.35);
       overflow: hidden;
+      transition: border-color 0.3s, box-shadow 0.3s;
     }
 
     canvas#game-canvas {
@@ -249,14 +378,14 @@
       image-rendering: crisp-edges;
     }
 
-    /* Subtle Toast for Level Up */
+    /* Subtle Toast for Level Up & Bonuses */
     .toast-notification {
       position: absolute;
       top: 16px;
       left: 50%;
       transform: translateX(-50%) translateY(-20px);
       background: var(--bg-surface-elevated);
-      border: 1px solid var(--accent-green);
+      border: 1px solid var(--accent-color);
       color: var(--text-primary);
       padding: 6px 16px;
       border-radius: 20px;
@@ -264,7 +393,7 @@
       letter-spacing: 0.08em;
       text-transform: uppercase;
       font-weight: 600;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 0 22px -4px var(--accent-color);
       opacity: 0;
       pointer-events: none;
       transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
@@ -285,9 +414,9 @@
     .overlay-backdrop {
       position: absolute;
       inset: 0;
-      background: rgba(14, 16, 18, 0.88);
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
+      background: rgba(10, 12, 14, 0.88);
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -307,16 +436,16 @@
       background: var(--bg-surface);
       border: 1px solid var(--border-subtle);
       border-radius: var(--border-radius-lg);
-      padding: 28px 24px;
+      padding: 26px 22px;
       width: 100%;
-      max-width: 380px;
+      max-width: 400px;
       text-align: center;
       box-shadow: var(--shadow-modal);
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 15px;
       transform: scale(0.96);
-      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s;
     }
 
     .overlay-backdrop.active .overlay-card {
@@ -341,12 +470,12 @@
     .stats-summary {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
+      gap: 8px;
       background: var(--bg-surface-elevated);
       padding: 12px;
       border-radius: var(--border-radius-md);
       border: 1px solid var(--border-subtle);
-      margin: 4px 0;
+      margin: 2px 0;
     }
 
     .stats-box {
@@ -356,7 +485,7 @@
     }
 
     .stats-box-label {
-      font-size: 0.64rem;
+      font-size: 0.62rem;
       text-transform: uppercase;
       letter-spacing: 0.08em;
       color: var(--text-muted);
@@ -373,14 +502,14 @@
     .new-best-badge {
       display: inline-block;
       align-self: center;
-      font-size: 0.7rem;
+      font-size: 0.72rem;
       font-weight: 700;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: #dfd8ba;
-      background: rgba(223, 216, 186, 0.12);
-      border: 1px solid rgba(223, 216, 186, 0.3);
-      padding: 3px 10px;
+      color: var(--bonus-color);
+      background: rgba(229, 185, 88, 0.12);
+      border: 1px solid rgba(229, 185, 88, 0.3);
+      padding: 3px 12px;
       border-radius: 12px;
     }
 
@@ -420,20 +549,20 @@
     }
 
     .btn:focus-visible {
-      outline: 2px solid var(--accent-green);
+      outline: 2px solid var(--accent-color);
       outline-offset: 2px;
     }
 
     .btn-primary {
       background: var(--snake-head);
       color: #ffffff;
-      border-color: rgba(255, 255, 255, 0.08);
-      box-shadow: 0 4px 12px rgba(95, 153, 114, 0.25);
+      border-color: rgba(255, 255, 255, 0.1);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
     }
 
     .btn-primary:hover {
-      background: #6aa87f;
-      box-shadow: 0 6px 16px rgba(95, 153, 114, 0.35);
+      filter: brightness(1.1);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
     }
 
     .btn-secondary {
@@ -463,7 +592,7 @@
       letter-spacing: 0.08em;
       color: var(--text-muted);
       text-transform: uppercase;
-      margin-top: 4px;
+      margin-top: 2px;
     }
 
     .key-prompt kbd {
@@ -514,7 +643,7 @@
     .settings-list {
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 12px;
       text-align: left;
     }
 
@@ -577,8 +706,8 @@
     }
 
     input:checked + .slider {
-      background-color: var(--snake-body);
-      border-color: var(--snake-head);
+      background-color: var(--snake-head);
+      border-color: var(--accent-color);
     }
 
     input:checked + .slider:before {
@@ -599,11 +728,51 @@
     }
 
     select.setting-select:focus {
-      border-color: var(--accent-green);
+      border-color: var(--accent-color);
     }
 
+    /* Theme Selector Chips */
+    .theme-selector-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 4px;
+      width: 100%;
+      min-width: 0;
+      margin-top: 4px;
+    }
+
+    .theme-chip {
+      height: 30px;
+      border-radius: var(--border-radius-sm);
+      border: 2px solid transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      transition: transform 0.15s, border-color 0.15s;
+    }
+
+    .theme-chip:hover {
+      transform: scale(1.05);
+    }
+
+    .theme-chip.active {
+      border-color: #ffffff;
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+    }
+
+    .chip-sage     { background: #5f9972; color: #fff; }
+    .chip-emerald  { background: #2ecc71; color: #000; }
+    .chip-nordic   { background: #38bdf8; color: #000; }
+    .chip-amber    { background: #f59e0b; color: #000; }
+    .chip-retro    { background: #4ade80; color: #000; }
+
     /* ==========================================================================
-       7. MOBILE ON-SCREEN CONTROLS & BOTTOM BAR
+       7. MOBILE CONTROLS & BOTTOM BAR
        ========================================================================== */
     .bottom-bar {
       width: 100%;
@@ -612,7 +781,7 @@
       flex-direction: column;
       align-items: center;
       gap: 10px;
-      margin-top: 10px;
+      margin-top: 8px;
     }
 
     .desktop-key-hints {
@@ -622,7 +791,7 @@
       text-transform: uppercase;
       text-align: center;
       display: flex;
-      gap: 12px;
+      gap: 10px;
       flex-wrap: wrap;
       justify-content: center;
     }
@@ -635,7 +804,6 @@
       margin: 4px auto 0;
     }
 
-    /* Show D-Pad on touch / small mobile screens */
     @media (hover: none) and (pointer: coarse), (max-width: 600px) {
       .touch-dpad-container.enabled {
         display: block;
@@ -676,7 +844,6 @@
     .dpad-left  { top: 36px; left: 10px; }
     .dpad-right { top: 36px; right: 10px; }
 
-    /* SVG icon styles */
     .icon {
       width: 16px;
       height: 16px;
@@ -684,7 +851,7 @@
     }
   </style>
 </head>
-<body>
+<body data-theme="sage">
 
   <div class="app-viewport" id="app-viewport">
     <!-- Top HUD Bar -->
@@ -707,9 +874,16 @@
           <span class="metric-label">Food</span>
           <span class="metric-val" id="hud-food">0</span>
         </div>
+        <div class="metric-item">
+          <span class="metric-label">Lives</span>
+          <span class="metric-val" id="hud-lives">♥♥♥</span>
+        </div>
       </div>
 
       <div class="hud-controls">
+        <button id="btn-fullscreen" class="icon-btn" title="Toggle Fullscreen" aria-label="Toggle Fullscreen">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+        </button>
         <button id="btn-sound-toggle" class="icon-btn" title="Toggle Sound" aria-label="Toggle Sound">
           <svg id="icon-sound-on" class="icon" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
           <svg id="icon-sound-off" class="icon" style="display:none;" viewBox="0 0 24 24"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27l4.01 4.01L7 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
@@ -728,11 +902,14 @@
     <main class="game-stage" id="board-container">
       <canvas id="game-canvas" width="600" height="600" aria-label="Snake Game Board"></canvas>
 
-      <!-- Level Up Toast -->
+      <!-- Level & Bonus Toast -->
       <div id="level-toast" class="toast-notification" aria-live="polite">
         <svg class="icon" viewBox="0 0 24 24"><path d="M12 4l-8 8h5v8h6v-8h5z"/></svg>
         <span id="level-toast-text">LEVEL 2 REACHED</span>
       </div>
+
+      <!-- Life Lost Flash Overlay -->
+      <div id="life-lost-overlay" style="position:absolute; inset:0; pointer-events:none; z-index:20;"></div>
 
       <!-- Start Screen Overlay -->
       <div id="start-overlay" class="overlay-backdrop active">
@@ -748,8 +925,28 @@
               <span class="stats-box-val" id="menu-high-score">0</span>
             </div>
             <div class="stats-box">
-              <span class="stats-box-label">Standard Mode</span>
+              <span class="stats-box-label">Games Played</span>
+              <span class="stats-box-val" id="menu-games-played">0</span>
+            </div>
+            <div class="stats-box">
+              <span class="stats-box-label">Total Eaten</span>
+              <span class="stats-box-val" id="menu-total-food">0</span>
+            </div>
+            <div class="stats-box">
+              <span class="stats-box-label">Progression</span>
               <span class="stats-box-val">3 Levels</span>
+            </div>
+          </div>
+
+          <!-- Quick Theme Select -->
+          <div>
+            <span class="metric-label" style="display:block; margin-bottom:4px;">Color Theme</span>
+            <div class="theme-selector-grid">
+              <button class="theme-chip chip-sage active" data-theme="sage" title="Sage Forest">Sage</button>
+              <button class="theme-chip chip-emerald" data-theme="emerald" title="Emerald Night">Emerald</button>
+              <button class="theme-chip chip-nordic" data-theme="nordic" title="Nordic Glacier">Nordic</button>
+              <button class="theme-chip chip-amber" data-theme="amber" title="Amber Cyber">Amber</button>
+              <button class="theme-chip chip-retro" data-theme="retro" title="Retro Matrix">Retro</button>
             </div>
           </div>
 
@@ -839,7 +1036,7 @@
         <div class="overlay-card" style="max-width: 420px;">
           <div>
             <h2 class="card-title">How To Play</h2>
-            <p class="card-subtitle">Rules &amp; Controls</p>
+            <p class="card-subtitle">Rules, Controls &amp; Bonus</p>
           </div>
 
           <div class="instructions-list">
@@ -861,15 +1058,27 @@
             </div>
             <div class="instruction-row">
               <strong>Scoring</strong>
-              <span class="instruction-desc">+10 points per food item</span>
+              <span class="instruction-desc">+10 per food &bull; +30 Golden bonus</span>
+            </div>
+            <div class="instruction-row">
+              <strong>Golden Food</strong>
+              <span class="instruction-desc">Appears every 5 food items with a countdown timer!</span>
             </div>
             <div class="instruction-row">
               <strong>Levels</strong>
               <span class="instruction-desc">Lvl 1 (Start), Lvl 2 (100 pts), Lvl 3 (200 pts)</span>
             </div>
             <div class="instruction-row">
+              <strong>Lives</strong>
+              <span class="instruction-desc">Start with 3 &hearts; &bull; Lose one per crash, respawn instantly</span>
+            </div>
+            <div class="instruction-row">
+              <strong>Obstacles</strong>
+              <span class="instruction-desc">Glowing hazard blocks from Level 2 onward &bull; Avoid them!</span>
+            </div>
+            <div class="instruction-row">
               <strong>Objective</strong>
-              <span class="instruction-desc">Eat food to grow. Avoid outer walls and your own tail!</span>
+              <span class="instruction-desc">Eat food to grow. Avoid walls, obstacles and your own tail!</span>
             </div>
           </div>
 
@@ -882,14 +1091,14 @@
         <div class="overlay-card" style="max-width: 380px;">
           <div>
             <h2 class="card-title">Settings</h2>
-            <p class="card-subtitle">Preferences &amp; Accessibility</p>
+            <p class="card-subtitle">Preferences &amp; Aesthetics</p>
           </div>
 
           <div class="settings-list">
             <div class="setting-item">
               <div>
                 <span class="setting-label">Sound Effects</span>
-                <span class="setting-sublabel">Audio chime &amp; cues</span>
+                <span class="setting-sublabel">Audio chimes &amp; synthesizer cues</span>
               </div>
               <label class="switch">
                 <input type="checkbox" id="setting-sound" checked>
@@ -906,6 +1115,20 @@
                 <input type="checkbox" id="setting-reduced-motion">
                 <span class="slider"></span>
               </label>
+            </div>
+
+            <div class="setting-item">
+              <div>
+                <span class="setting-label">Color Theme</span>
+                <span class="setting-sublabel">Board &amp; snake visual palette</span>
+              </div>
+              <select id="setting-theme" class="setting-select">
+                <option value="sage">Sage Forest (Classic)</option>
+                <option value="emerald">Midnight Emerald</option>
+                <option value="nordic">Nordic Glacier</option>
+                <option value="amber">Amber Cyber</option>
+                <option value="retro">Retro Matrix</option>
+              </select>
             </div>
 
             <div class="setting-item">
@@ -963,7 +1186,7 @@
   </div>
 
   <!-- ==========================================================================
-       8. JAVASCRIPT: ROBUST, COMPLETE, MODULAR IMPLEMENTATION
+       8. JAVASCRIPT: ADVANCED SNAKE GAME ENGINE
        ========================================================================== -->
   <script>
     (function () {
@@ -975,7 +1198,6 @@
       const GRID_COLS = 20;
       const GRID_ROWS = 20;
 
-      // Base tick durations in ms for each level
       const LEVEL_BASE_SPEEDS = {
         1: 145, // Comfortable & deliberate
         2: 110, // Medium pace
@@ -983,15 +1205,18 @@
       };
 
       const POINTS_PER_FOOD = 10;
-      const LEVEL_2_THRESHOLD = 100; // 10 food items
-      const LEVEL_3_THRESHOLD = 200; // 20 food items
+      const POINTS_BONUS_FOOD = 30;
+      const LEVEL_2_THRESHOLD = 100;
+      const LEVEL_3_THRESHOLD = 200;
+      const STARTING_LIVES = 3;
+      const OBSTACLE_COUNTS = { 1: 0, 2: 8, 3: 14 };
 
       const STORAGE_KEYS = {
         HIGH_SCORE: 'snake_classic_highscore',
-        SETTINGS: 'snake_classic_settings'
+        SETTINGS: 'snake_classic_settings',
+        STATS: 'snake_classic_stats'
       };
 
-      // Game States
       const STATES = {
         MENU: 'MENU',
         PLAYING: 'PLAYING',
@@ -999,7 +1224,6 @@
         GAMEOVER: 'GAMEOVER'
       };
 
-      // Directions
       const DIR = {
         UP:    { x:  0, y: -1 },
         DOWN:  { x:  0, y:  1 },
@@ -1008,7 +1232,7 @@
       };
 
       /* ------------------------------------------------------------------------
-       * AUDIO ENGINE (Web Audio API Synthesizer - Zero External Assets)
+       * AUDIO ENGINE (Web Audio API Synthesizer)
        * ------------------------------------------------------------------------ */
       class SoundSystem {
         constructor() {
@@ -1048,9 +1272,7 @@
 
             osc.start();
             osc.stop(this.ctx.currentTime + duration);
-          } catch (e) {
-            // Safe fallback if audio fails in restricted context
-          }
+          } catch (e) {}
         }
 
         playFood() {
@@ -1060,7 +1282,6 @@
             if (!this.ctx) return;
             const now = this.ctx.currentTime;
             
-            // Soft warm harmonic ding (A5 -> D6)
             const osc1 = this.ctx.createOscillator();
             const osc2 = this.ctx.createOscillator();
             const gain = this.ctx.createGain();
@@ -1087,12 +1308,38 @@
           } catch (e) {}
         }
 
+        playBonusFood() {
+          if (!this.enabled) return;
+          try {
+            this.initContext();
+            if (!this.ctx) return;
+            // Sparkling golden chord
+            const notes = [659.25, 880.0, 1174.66, 1760.0]; // E5, A5, D6, A6
+            notes.forEach((freq, idx) => {
+              const start = this.ctx.currentTime + idx * 0.04;
+              const osc = this.ctx.createOscillator();
+              const gain = this.ctx.createGain();
+
+              osc.type = 'triangle';
+              osc.frequency.setValueAtTime(freq, start);
+
+              gain.gain.setValueAtTime(0.12, start);
+              gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.18);
+
+              osc.connect(gain);
+              gain.connect(this.ctx.destination);
+
+              osc.start(start);
+              osc.stop(start + 0.18);
+            });
+          } catch (e) {}
+        }
+
         playLevelUp() {
           if (!this.enabled) return;
           try {
             this.initContext();
             if (!this.ctx) return;
-            // Clean ascending major chord arpeggio
             const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
             notes.forEach((freq, idx) => {
               const start = this.ctx.currentTime + idx * 0.06;
@@ -1111,6 +1358,30 @@
               osc.start(start);
               osc.stop(start + 0.2);
             });
+          } catch (e) {}
+        }
+
+        playLifeLost() {
+          if (!this.enabled) return;
+          try {
+            this.initContext();
+            if (!this.ctx) return;
+            const now = this.ctx.currentTime;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(320, now);
+            osc.frequency.exponentialRampToValueAtTime(110, now + 0.26);
+
+            gain.gain.setValueAtTime(0.14, now);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.26);
+
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+
+            osc.start(now);
+            osc.stop(now + 0.26);
           } catch (e) {}
         }
 
@@ -1169,6 +1440,7 @@
               return {
                 sound: typeof parsed.sound === 'boolean' ? parsed.sound : true,
                 reducedMotion: typeof parsed.reducedMotion === 'boolean' ? parsed.reducedMotion : false,
+                theme: typeof parsed.theme === 'string' ? parsed.theme : 'sage',
                 speedMultiplier: typeof parsed.speedMultiplier === 'number' ? parsed.speedMultiplier : 1.0,
                 showDpad: typeof parsed.showDpad === 'boolean' ? parsed.showDpad : true
               };
@@ -1177,6 +1449,7 @@
           return {
             sound: true,
             reducedMotion: false,
+            theme: 'sage',
             speedMultiplier: 1.0,
             showDpad: true
           };
@@ -1185,32 +1458,61 @@
           try {
             localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
           } catch (e) {}
+        },
+        getStats() {
+          try {
+            const raw = localStorage.getItem(STORAGE_KEYS.STATS);
+            if (raw) {
+              const p = JSON.parse(raw);
+              return {
+                gamesPlayed: p.gamesPlayed || 0,
+                totalFood: p.totalFood || 0
+              };
+            }
+          } catch (e) {}
+          return { gamesPlayed: 0, totalFood: 0 };
+        },
+        saveStats(stats) {
+          try {
+            localStorage.setItem(STORAGE_KEYS.STATS, JSON.stringify(stats));
+          } catch (e) {}
         }
       };
 
       /* ------------------------------------------------------------------------
-       * PARTICLE EFFECT SYSTEM
+       * PARTICLES & FLOATING TEXTS
        * ------------------------------------------------------------------------ */
-      class ParticleSystem {
+      class FXSystem {
         constructor() {
           this.particles = [];
+          this.floatingTexts = [];
         }
 
-        spawn(x, y, count = 8, color = '#f3eed9') {
+        spawnParticles(x, y, count = 8, color = '#f3eed9') {
           for (let i = 0; i < count; i++) {
             const angle = Math.random() * Math.PI * 2;
-            const speed = 0.8 + Math.random() * 2.2;
+            const speed = 0.8 + Math.random() * 2.4;
             this.particles.push({
               x: x,
               y: y,
               vx: Math.cos(angle) * speed,
               vy: Math.sin(angle) * speed,
               life: 1.0,
-              decay: 0.04 + Math.random() * 0.04,
+              decay: 0.035 + Math.random() * 0.035,
               size: 2.2 + Math.random() * 2.2,
               color: color
             });
           }
+        }
+
+        spawnFloatingText(text, x, y, color = '#ffffff') {
+          this.floatingTexts.push({
+            text: text,
+            x: x,
+            y: y,
+            alpha: 1.0,
+            color: color
+          });
         }
 
         update() {
@@ -1223,9 +1525,19 @@
               this.particles.splice(i, 1);
             }
           }
+
+          for (let i = this.floatingTexts.length - 1; i >= 0; i--) {
+            const ft = this.floatingTexts[i];
+            ft.y -= 0.6;
+            ft.alpha -= 0.025;
+            if (ft.alpha <= 0) {
+              this.floatingTexts.splice(i, 1);
+            }
+          }
         }
 
         render(ctx) {
+          // Particles
           for (let i = 0; i < this.particles.length; i++) {
             const p = this.particles[i];
             ctx.save();
@@ -1236,10 +1548,23 @@
             ctx.fill();
             ctx.restore();
           }
+
+          // Floating Texts
+          for (let i = 0; i < this.floatingTexts.length; i++) {
+            const ft = this.floatingTexts[i];
+            ctx.save();
+            ctx.globalAlpha = Math.max(0, ft.alpha);
+            ctx.fillStyle = ft.color;
+            ctx.font = 'bold 15px ' + getComputedStyle(document.body).fontFamily;
+            ctx.textAlign = 'center';
+            ctx.fillText(ft.text, ft.x, ft.y);
+            ctx.restore();
+          }
         }
 
         clear() {
           this.particles = [];
+          this.floatingTexts = [];
         }
       }
 
@@ -1248,7 +1573,6 @@
        * ------------------------------------------------------------------------ */
       class SnakeGame {
         constructor() {
-          // DOM Elements
           this.canvas = document.getElementById('game-canvas');
           this.ctx = this.canvas.getContext('2d');
           this.boardContainer = document.getElementById('board-container');
@@ -1259,7 +1583,9 @@
           this.hudScore = document.getElementById('hud-score');
           this.hudHigh = document.getElementById('hud-high');
           this.hudFood = document.getElementById('hud-food');
+          this.hudLives = document.getElementById('hud-lives');
           this.hudLevelBadge = document.getElementById('hud-level-badge');
+          this.lifeLostOverlay = document.getElementById('life-lost-overlay');
 
           // Overlays
           this.startOverlay = document.getElementById('start-overlay');
@@ -1268,8 +1594,10 @@
           this.howToOverlay = document.getElementById('how-to-play-overlay');
           this.settingsOverlay = document.getElementById('settings-overlay');
 
-          // Stats in Overlays
+          // Stats Elements
           this.menuHighScore = document.getElementById('menu-high-score');
+          this.menuGamesPlayed = document.getElementById('menu-games-played');
+          this.menuTotalFood = document.getElementById('menu-total-food');
           this.pauseScore = document.getElementById('pause-score');
           this.pauseLevel = document.getElementById('pause-level');
           this.gameoverScore = document.getElementById('gameover-score');
@@ -1279,6 +1607,7 @@
           this.newBestBanner = document.getElementById('new-best-banner');
 
           // Buttons
+          this.btnFullscreen = document.getElementById('btn-fullscreen');
           this.btnSoundToggle = document.getElementById('btn-sound-toggle');
           this.iconSoundOn = document.getElementById('icon-sound-on');
           this.iconSoundOff = document.getElementById('icon-sound-off');
@@ -1304,54 +1633,81 @@
           // Settings Controls
           this.settingSound = document.getElementById('setting-sound');
           this.settingReducedMotion = document.getElementById('setting-reduced-motion');
+          this.settingTheme = document.getElementById('setting-theme');
           this.settingSpeed = document.getElementById('setting-speed');
           this.settingDpad = document.getElementById('setting-dpad');
           this.touchDpad = document.getElementById('touch-dpad');
 
           // Subsystems
           this.sound = new SoundSystem();
-          this.particles = new ParticleSystem();
+          this.fx = new FXSystem();
 
-          // Preferences & Saved State
+          // Preferences & Stats
           this.highScore = Storage.getHighScore();
           this.settings = Storage.getSettings();
+          this.stats = Storage.getStats();
 
-          // Game State Machine
+          // State Machine
           this.state = STATES.MENU;
 
-          // Game World Variables
+          // Game Variables
           this.snake = [];
-          this.prevSnake = []; // For sub-cell smooth interpolation
+          this.prevSnake = [];
           this.direction = DIR.RIGHT;
           this.inputQueue = [];
           this.food = { x: 0, y: 0 };
           this.foodScalePulse = 1.0;
+
+          // Golden Bonus Food
+          this.bonusFood = null; // { x, y, duration, maxDuration }
+          this.bonusTimer = 0;
+
+          // Obstacles (Level 2+)
+          this.obstacles = [];
+
           this.score = 0;
           this.foodCount = 0;
           this.level = 1;
+          this.lives = STARTING_LIVES;
           this.isNewHighScore = false;
 
-          // Timing & Loop
+          // Animation & Loop
           this.lastTime = 0;
           this.accumulator = 0;
           this.animationFrameId = null;
           this.toastTimeout = null;
-
-          // Canvas Metrics
-          this.cellSize = 30; // 600 / 20
-
-          // Initialize
-          this.applySettings();
-          this.updateHUD();
-          this.bindEvents();
           this.resizeCanvas();
           this.resetGameData();
-          this.render(); // Initial static frame
+          this.applySettings();
+          this.updateHUD();
+          this.updateStatsDisplay();
+          this.bindEvents();
+          this.render();
         }
 
         /* --------------------------------------------------------------------
-         * SETTINGS & PREFERENCES
+         * SETTINGS & THEMES
          * -------------------------------------------------------------------- */
+        setTheme(themeName) {
+          const validThemes = ['sage', 'emerald', 'nordic', 'amber', 'retro'];
+          const theme = validThemes.includes(themeName) ? themeName : 'sage';
+          this.settings.theme = theme;
+          document.body.setAttribute('data-theme', theme);
+          this.settingTheme.value = theme;
+
+          // Update theme chips in start menu
+          document.querySelectorAll('.theme-chip').forEach(chip => {
+            if (chip.getAttribute('data-theme') === theme) {
+              chip.classList.add('active');
+            } else {
+              chip.classList.remove('active');
+            }
+          });
+
+          this.saveCurrentSettings();
+          this.render();
+        }
+
         applySettings() {
           this.sound.enabled = this.settings.sound;
           this.settingSound.checked = this.settings.sound;
@@ -1364,6 +1720,7 @@
             document.body.classList.remove('reduced-motion');
           }
 
+          this.setTheme(this.settings.theme || 'sage');
           this.settingSpeed.value = String(this.settings.speedMultiplier);
 
           this.settingDpad.checked = this.settings.showDpad;
@@ -1377,10 +1734,10 @@
         saveCurrentSettings() {
           this.settings.sound = this.settingSound.checked;
           this.settings.reducedMotion = this.settingReducedMotion.checked;
+          this.settings.theme = this.settingTheme.value;
           this.settings.speedMultiplier = parseFloat(this.settingSpeed.value) || 1.0;
           this.settings.showDpad = this.settingDpad.checked;
 
-          this.applySettings();
           Storage.saveSettings(this.settings);
         }
 
@@ -1401,17 +1758,45 @@
           if (this.sound.enabled) {
             this.sound.playClick();
           }
+          this.updateSoundIcon();
+        }
+
+        toggleFullscreen() {
+          if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(() => {});
+          } else {
+            document.exitFullscreen().catch(() => {});
+          }
         }
 
         /* --------------------------------------------------------------------
-         * DISPLAY & CANVAS SIZING
+         * STATS & HUD
+         * -------------------------------------------------------------------- */
+        updateStatsDisplay() {
+          this.menuHighScore.textContent = this.highScore;
+          this.menuGamesPlayed.textContent = this.stats.gamesPlayed;
+          this.menuTotalFood.textContent = this.stats.totalFood;
+        }
+
+        updateHUD() {
+          this.hudScore.textContent = this.score;
+          this.hudHigh.textContent = this.highScore;
+          this.hudFood.textContent = this.foodCount;
+          this.hudLevelBadge.textContent = `LVL ${this.level}`;
+          this.menuHighScore.textContent = this.highScore;
+          this.updateLivesDisplay();
+        }
+
+        updateLivesDisplay() {
+          const filled = '♥'.repeat(Math.max(this.lives, 0));
+          const empty = '♡'.repeat(Math.max(STARTING_LIVES - this.lives, 0));
+          this.hudLives.textContent = filled + empty;
+        }
+
+        /* --------------------------------------------------------------------
+         * SIZING & RESET
          * -------------------------------------------------------------------- */
         resizeCanvas() {
-          const rect = this.canvas.getBoundingClientRect();
-          const dpr = window.devicePixelRatio || 1;
-          const displayWidth = Math.round(rect.width || 520);
-          const displayHeight = Math.round(rect.height || 520);
-
           if (this.canvas.width !== 600 || this.canvas.height !== 600) {
             this.canvas.width = 600;
             this.canvas.height = 600;
@@ -1419,17 +1804,12 @@
           this.cellSize = 600 / GRID_COLS;
         }
 
-        /* --------------------------------------------------------------------
-         * GAME STATE & CONTROLS
-         * -------------------------------------------------------------------- */
         getStepInterval() {
           const base = LEVEL_BASE_SPEEDS[this.level] || 140;
-          // Speed multiplier: 0.8x -> slower (interval divided by 0.8 is larger), 1.2x -> faster
           return Math.max(45, Math.round(base / this.settings.speedMultiplier));
         }
 
         resetGameData() {
-          // Snake starts centered, length 3, moving right
           const startX = 6;
           const startY = 10;
           this.snake = [
@@ -1443,10 +1823,14 @@
           this.score = 0;
           this.foodCount = 0;
           this.level = 1;
+          this.lives = STARTING_LIVES;
           this.isNewHighScore = false;
           this.accumulator = 0;
           this.lastTime = 0;
-          this.particles.clear();
+          this.bonusFood = null;
+          this.bonusTimer = 0;
+          this.obstacles = [];
+          this.fx.clear();
           this.spawnFood();
         }
 
@@ -1455,6 +1839,10 @@
           this.sound.playClick();
           this.resetGameData();
           this.state = STATES.PLAYING;
+
+          this.stats.gamesPlayed += 1;
+          Storage.saveStats(this.stats);
+          this.updateStatsDisplay();
 
           this.hideAllOverlays();
           this.updateHUD();
@@ -1509,17 +1897,15 @@
           this.state = STATES.GAMEOVER;
           this.sound.playGameOver();
 
-          // Screen shake if motion not reduced
           if (!this.settings.reducedMotion) {
             this.boardContainer.classList.remove('shake');
-            void this.boardContainer.offsetWidth; // Trigger reflow
+            void this.boardContainer.offsetWidth;
             this.boardContainer.classList.add('shake');
             setTimeout(() => {
               this.boardContainer.classList.remove('shake');
             }, 300);
           }
 
-          // Populate Game Over stats
           this.gameoverScore.textContent = this.score;
           this.gameoverHigh.textContent = this.highScore;
           this.gameoverFood.textContent = this.foodCount;
@@ -1539,7 +1925,7 @@
           this.sound.playClick();
           this.state = STATES.MENU;
           this.hideAllOverlays();
-          this.menuHighScore.textContent = this.highScore;
+          this.updateStatsDisplay();
           this.startOverlay.classList.add('active');
           this.updatePauseIcon();
           this.render();
@@ -1554,68 +1940,100 @@
         }
 
         /* --------------------------------------------------------------------
-         * FOOD & COLLISION LOGIC
+         * FOOD & SPAWNING
          * -------------------------------------------------------------------- */
-        spawnFood() {
+        getEmptyCells() {
           const occupied = new Set();
           for (let seg of this.snake) {
             occupied.add(`${seg.x},${seg.y}`);
           }
+          if (this.food) occupied.add(`${this.food.x},${this.food.y}`);
+          if (this.bonusFood) occupied.add(`${this.bonusFood.x},${this.bonusFood.y}`);
+          if (this.obstacles) {
+            for (let o of this.obstacles) occupied.add(`${o.x},${o.y}`);
+          }
 
-          const emptyCells = [];
+          const empty = [];
           for (let x = 0; x < GRID_COLS; x++) {
             for (let y = 0; y < GRID_ROWS; y++) {
               if (!occupied.has(`${x},${y}`)) {
-                emptyCells.push({ x, y });
+                empty.push({ x, y });
               }
             }
           }
+          return empty;
+        }
 
-          if (emptyCells.length === 0) {
-            // Player won by filling the entire board!
+        spawnFood() {
+          const empty = this.getEmptyCells();
+          if (empty.length === 0) {
             this.gameOver();
             return;
           }
+          const randomIndex = Math.floor(Math.random() * empty.length);
+          this.food = empty[randomIndex];
+          this.foodScalePulse = 1.4;
+        }
 
-          const randomIndex = Math.floor(Math.random() * emptyCells.length);
-          this.food = emptyCells[randomIndex];
-          this.foodScalePulse = 1.4; // Initial pop
+        spawnBonusFood() {
+          const empty = this.getEmptyCells();
+          if (empty.length === 0) return;
+          const randomIndex = Math.floor(Math.random() * empty.length);
+          this.bonusFood = {
+            x: empty[randomIndex].x,
+            y: empty[randomIndex].y,
+            duration: 85, // ticks
+            maxDuration: 85
+          };
+          this.showLevelToast('★ GOLDEN BONUS ACTIVE! ★');
+        }
+
+        /* --------------------------------------------------------------------
+         * OBSTACLES (Level 2+)
+         * -------------------------------------------------------------------- */
+        generateObstacles() {
+          this.obstacles = [];
+          const count = OBSTACLE_COUNTS[this.level] || 0;
+          if (count <= 0) return;
+
+          const head = this.snake[0];
+          const candidates = this.getEmptyCells().filter(c => {
+            const dist = Math.abs(c.x - head.x) + Math.abs(c.y - head.y);
+            return dist > 3;
+          });
+
+          for (let i = 0; i < count && candidates.length > 0; i++) {
+            const idx = Math.floor(Math.random() * candidates.length);
+            this.obstacles.push(candidates[idx]);
+            candidates.splice(idx, 1);
+          }
         }
 
         queueDirection(newDir) {
           if (this.state !== STATES.PLAYING) return;
-
-          // Determine current effectively planned direction
           const currentDir = this.inputQueue.length > 0
             ? this.inputQueue[this.inputQueue.length - 1]
             : this.direction;
 
-          // Disallow 180-degree instant reversal
           if (newDir.x + currentDir.x === 0 && newDir.y + currentDir.y === 0) {
             return;
           }
-
-          // Disallow duplicates in queue
           if (newDir.x === currentDir.x && newDir.y === currentDir.y) {
             return;
           }
-
-          // Buffer up to 2 future turns
           if (this.inputQueue.length < 2) {
             this.inputQueue.push(newDir);
           }
         }
 
         /* --------------------------------------------------------------------
-         * DISCRETE STEP UPDATE
+         * DISCRETE STEP LOGIC
          * -------------------------------------------------------------------- */
         step() {
-          // Dequeue next direction if available
           if (this.inputQueue.length > 0) {
             this.direction = this.inputQueue.shift();
           }
 
-          // Save previous positions for smooth visual interpolation
           this.prevSnake = this.snake.map(seg => ({ x: seg.x, y: seg.y }));
 
           const head = this.snake[0];
@@ -1624,27 +2042,32 @@
             y: head.y + this.direction.y
           };
 
-          // 1. Wall Collision Check
-          if (
-            newHead.x < 0 ||
-            newHead.x >= GRID_COLS ||
-            newHead.y < 0 ||
-            newHead.y >= GRID_ROWS
-          ) {
-            this.gameOver();
+          // 1. Wall Collision
+          if (newHead.x < 0 || newHead.x >= GRID_COLS || newHead.y < 0 || newHead.y >= GRID_ROWS) {
+            this.loseLife();
             return;
           }
 
-          // 2. Self Collision Check
-          // Check collision with all segments except the tail segment (which will vacate unless eating food)
-          const willEatFood = (newHead.x === this.food.x && newHead.y === this.food.y);
-          const segmentsToCheck = willEatFood
+          // 2. Obstacle Collision
+          for (let obs of this.obstacles) {
+            if (newHead.x === obs.x && newHead.y === obs.y) {
+              this.loseLife();
+              return;
+            }
+          }
+
+          // 3. Self Collision
+          const willEatNormal = (newHead.x === this.food.x && newHead.y === this.food.y);
+          const willEatBonus = (this.bonusFood && newHead.x === this.bonusFood.x && newHead.y === this.bonusFood.y);
+          const isGrowing = willEatNormal || willEatBonus;
+
+          const segmentsToCheck = isGrowing
             ? this.snake
             : this.snake.slice(0, this.snake.length - 1);
 
           for (let seg of segmentsToCheck) {
             if (newHead.x === seg.x && newHead.y === seg.y) {
-              this.gameOver();
+              this.loseLife();
               return;
             }
           }
@@ -1652,19 +2075,46 @@
           // Move Head
           this.snake.unshift(newHead);
 
-          // 3. Food Collection Check
-          if (willEatFood) {
-            this.score += POINTS_PER_FOOD;
-            this.foodCount += 1;
+          // Update Bonus Food Timer
+          if (this.bonusFood) {
+            this.bonusFood.duration--;
+            if (this.bonusFood.duration <= 0) {
+              this.bonusFood = null;
+            }
+          }
 
-            // Check High Score
+          // 4. Check Food
+          if (willEatBonus) {
+            this.score += POINTS_BONUS_FOOD;
+            this.stats.totalFood += 1;
+            Storage.saveStats(this.stats);
+
             if (this.score > this.highScore) {
               this.highScore = this.score;
               this.isNewHighScore = true;
               Storage.saveHighScore(this.highScore);
             }
 
-            // Check Level Progression
+            this.sound.playBonusFood();
+            const px = (this.bonusFood.x + 0.5) * this.cellSize;
+            const py = (this.bonusFood.y + 0.5) * this.cellSize;
+            this.fx.spawnParticles(px, py, 16, '#e5b958');
+            this.fx.spawnFloatingText('+30', px, py, '#e5b958');
+            this.bonusFood = null;
+            this.updateHUD();
+
+          } else if (willEatNormal) {
+            this.score += POINTS_PER_FOOD;
+            this.foodCount += 1;
+            this.stats.totalFood += 1;
+            Storage.saveStats(this.stats);
+
+            if (this.score > this.highScore) {
+              this.highScore = this.score;
+              this.isNewHighScore = true;
+              Storage.saveHighScore(this.highScore);
+            }
+
             const oldLevel = this.level;
             if (this.score >= LEVEL_3_THRESHOLD) {
               this.level = 3;
@@ -1675,24 +2125,96 @@
             if (this.level !== oldLevel) {
               this.sound.playLevelUp();
               this.showLevelToast(`LEVEL ${this.level} REACHED`);
+              this.generateObstacles();
             } else {
               this.sound.playFood();
             }
 
-            // Visual effects
-            if (!this.settings.reducedMotion) {
-              const pixelX = (this.food.x + 0.5) * this.cellSize;
-              const pixelY = (this.food.y + 0.5) * this.cellSize;
-              this.particles.spawn(pixelX, pixelY, 10, '#f3eed9');
-            }
+            const px = (this.food.x + 0.5) * this.cellSize;
+            const py = (this.food.y + 0.5) * this.cellSize;
+            this.fx.spawnParticles(px, py, 10, '#f3eed9');
+            this.fx.spawnFloatingText('+10', px, py, '#ffffff');
 
             this.updateHUD();
             this.spawnFood();
-            // Don't pop tail -> Snake grows!
+
+            // Trigger Bonus Food every 5 food items if not active
+            if (this.foodCount % 5 === 0 && !this.bonusFood) {
+              this.spawnBonusFood();
+            }
           } else {
-            // Normal move: remove tail
             this.snake.pop();
           }
+        }
+
+        /* --------------------------------------------------------------------
+         * LIVES SYSTEM
+         * -------------------------------------------------------------------- */
+        loseLife() {
+          this.lives -= 1;
+          this.updateHUD();
+
+          this.hudLives.classList.remove('pulse-life-lost');
+          void this.hudLives.offsetWidth;
+          this.hudLives.classList.add('pulse-life-lost');
+
+          if (!this.settings.reducedMotion) {
+            this.boardContainer.classList.remove('shake');
+            void this.boardContainer.offsetWidth;
+            this.boardContainer.classList.add('shake');
+            setTimeout(() => this.boardContainer.classList.remove('shake'), 280);
+
+            this.lifeLostOverlay.classList.remove('life-lost-flash');
+            void this.lifeLostOverlay.offsetWidth;
+            this.lifeLostOverlay.classList.add('life-lost-flash');
+          }
+
+          this.sound.playLifeLost();
+
+          if (this.lives <= 0) {
+            this.gameOver();
+            return;
+          }
+
+          this.showLevelToast(`LIFE LOST! ${this.lives} REMAINING`);
+          this.respawnSnake();
+        }
+
+        respawnSnake() {
+          const candidates = [
+            { x: 6, y: 10 },
+            { x: 10, y: 10 },
+            { x: 3, y: 3 },
+            { x: 16, y: 16 },
+            { x: 3, y: 16 },
+            { x: 16, y: 3 }
+          ];
+
+          let placed = false;
+          for (const p of candidates) {
+            const cells = [
+              { x: p.x, y: p.y },
+              { x: p.x - 1, y: p.y },
+              { x: p.x - 2, y: p.y }
+            ];
+            const blocked = cells.some(c =>
+              c.x < 0 || c.x >= GRID_COLS || c.y < 0 || c.y >= GRID_ROWS ||
+              this.obstacles.some(o => o.x === c.x && o.y === c.y)
+            );
+            if (!blocked) {
+              this.snake = cells;
+              placed = true;
+              break;
+            }
+          }
+
+          if (!placed) {
+            this.snake = [{ x: 6, y: 10 }, { x: 5, y: 10 }, { x: 4, y: 10 }];
+          }
+
+          this.direction = DIR.RIGHT;
+          this.prevSnake = JSON.parse(JSON.stringify(this.snake));
+          this.inputQueue = [];
         }
 
         showLevelToast(text) {
@@ -1704,27 +2226,18 @@
           }, 2400);
         }
 
-        updateHUD() {
-          this.hudScore.textContent = this.score;
-          this.hudHigh.textContent = this.highScore;
-          this.hudFood.textContent = this.foodCount;
-          this.hudLevelBadge.textContent = `LVL ${this.level}`;
-          this.menuHighScore.textContent = this.highScore;
-        }
-
         /* --------------------------------------------------------------------
-         * ANIMATION LOOP & TICK CONTROL
+         * ANIMATION LOOP
          * -------------------------------------------------------------------- */
         gameLoop(currentTime) {
-          if (this.state !== STATES.PLAYING) {
-            return;
-          }
+          if (this.state !== STATES.PLAYING) return;
 
-          const deltaTime = Math.min(currentTime - this.lastTime, 100); // Guard against huge tab-switch jumps
+          const deltaTime = Math.min(currentTime - this.lastTime, 100);
           this.lastTime = currentTime;
 
           const stepInterval = this.getStepInterval();
           this.accumulator += deltaTime;
+          this.tongueTimer = (this.tongueTimer + 1) % 180;
 
           while (this.accumulator >= stepInterval) {
             this.step();
@@ -1735,13 +2248,8 @@
             }
           }
 
-          // Fractional progress between discrete ticks (0.0 to 1.0)
           const progress = Math.min(this.accumulator / stepInterval, 1.0);
-
-          // Update decorative particles
-          this.particles.update();
-
-          // Render interpolated frame
+          this.fx.update();
           this.render(progress);
 
           this.animationFrameId = requestAnimationFrame(this.gameLoop.bind(this));
@@ -1756,66 +2264,162 @@
           const h = this.canvas.height;
           const cs = this.cellSize;
 
-          // 1. Clear background
-          ctx.fillStyle = '#111316';
+          // 1. Canvas Background (subtle radial vignette for a premium depth feel)
+          const bgSurface = getComputedStyle(document.body).getPropertyValue('--bg-surface').trim() || '#15181b';
+          const bgElevated = getComputedStyle(document.body).getPropertyValue('--bg-surface-elevated').trim() || '#1c2024';
+          const bgGrad = ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w * 0.75);
+          bgGrad.addColorStop(0, bgElevated);
+          bgGrad.addColorStop(1, bgSurface);
+          ctx.fillStyle = bgGrad;
           ctx.fillRect(0, 0, w, h);
 
-          // 2. Draw subtle grid
+          // 2. Subtle Grid
           ctx.strokeStyle = 'rgba(255, 255, 255, 0.025)';
           ctx.lineWidth = 1;
           ctx.beginPath();
           for (let x = 0; x <= w; x += cs) {
-            ctx.moveTo(x, 0);
-            ctx.lineTo(x, h);
+            ctx.moveTo(x, 0); ctx.lineTo(x, h);
           }
           for (let y = 0; y <= h; y += cs) {
-            ctx.moveTo(0, y);
-            ctx.lineTo(w, y);
+            ctx.moveTo(0, y); ctx.lineTo(w, y);
           }
           ctx.stroke();
 
-          // 3. Render Food
+          // 3. Render Obstacles
+          if (this.obstacles && this.obstacles.length > 0) {
+            this.renderObstacles(ctx, cs);
+          }
+
+          // 4. Render Food
           this.renderFood(ctx, cs);
 
-          // 4. Render Particles
-          this.particles.render(ctx);
+          // 5. Render Bonus Food
+          if (this.bonusFood) {
+            this.renderBonusFood(ctx, cs);
+          }
 
-          // 5. Render Snake
+          // 6. Render Particles & Floating Texts
+          this.fx.render(ctx);
+
+          // 7. Render Snake
           this.renderSnake(ctx, cs, progress);
         }
 
-        renderFood(ctx, cs) {
-          const centerX = (this.food.x + 0.5) * cs;
-          const centerY = (this.food.y + 0.5) * cs;
-          const baseRadius = cs * 0.32;
+        renderObstacles(ctx, cs) {
+          ctx.save();
+          for (const obs of this.obstacles) {
+            const x = obs.x * cs;
+            const y = obs.y * cs;
+            const pad = 3;
 
-          // Subtle pulse decay
+            ctx.save();
+            ctx.shadowColor = 'rgba(194, 89, 83, 0.55)';
+            ctx.shadowBlur = 10;
+
+            const grad = ctx.createLinearGradient(x, y, x + cs, y + cs);
+            grad.addColorStop(0, '#4a4f58');
+            grad.addColorStop(1, '#262a30');
+            ctx.fillStyle = grad;
+
+            ctx.beginPath();
+            ctx.moveTo(x + pad + cs * 0.15, y + pad);
+            ctx.lineTo(x + cs - pad, y + pad + cs * 0.12);
+            ctx.lineTo(x + cs - pad - cs * 0.1, y + cs - pad);
+            ctx.lineTo(x + pad, y + cs - pad - cs * 0.15);
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+
+            ctx.strokeStyle = 'rgba(194, 89, 83, 0.7)';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            ctx.strokeStyle = 'rgba(255, 176, 59, 0.55)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(x + cs * 0.25, y + cs * 0.75);
+            ctx.lineTo(x + cs * 0.75, y + cs * 0.25);
+            ctx.stroke();
+          }
+          ctx.restore();
+        }
+
+        renderFood(ctx, cs) {
+          if (!this.food) return;
+          const cx = (this.food.x + 0.5) * cs;
+          const cy = (this.food.y + 0.5) * cs;
+          const baseR = cs * 0.32;
+
           if (this.foodScalePulse > 1.0) {
             this.foodScalePulse -= 0.04;
           } else {
             this.foodScalePulse = 1.0;
           }
 
-          const r = baseRadius * this.foodScalePulse;
+          const r = baseR * this.foodScalePulse;
+          const foodColor = getComputedStyle(document.body).getPropertyValue('--food-color').trim() || '#f3eed9';
 
-          // Soft ambient glow
           ctx.save();
-          ctx.fillStyle = 'rgba(243, 238, 217, 0.08)';
+          // Ambient Glow
+          ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--food-glow').trim() || 'rgba(243, 238, 217, 0.2)';
           ctx.beginPath();
-          ctx.arc(centerX, centerY, r * 1.55, 0, Math.PI * 2);
+          ctx.arc(cx, cy, r * 1.6, 0, Math.PI * 2);
           ctx.fill();
 
-          // Food core: Ivory sphere with subtle rim
-          ctx.fillStyle = '#f3eed9';
+          // Food Core (with glow)
+          ctx.shadowColor = foodColor;
+          ctx.shadowBlur = 14;
+          ctx.fillStyle = foodColor;
           ctx.beginPath();
-          ctx.arc(centerX, centerY, r, 0, Math.PI * 2);
+          ctx.arc(cx, cy, r, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.shadowBlur = 0;
+
+          // Highlight
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+          ctx.beginPath();
+          ctx.arc(cx - r * 0.25, cy - r * 0.25, r * 0.35, 0, Math.PI * 2);
           ctx.fill();
 
-          // Delicate warm center highlight
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+          ctx.restore();
+        }
+
+        renderBonusFood(ctx, cs) {
+          const cx = (this.bonusFood.x + 0.5) * cs;
+          const cy = (this.bonusFood.y + 0.5) * cs;
+          const r = cs * 0.36;
+          const pulse = 1.0 + Math.sin(Date.now() / 150) * 0.08;
+
+          ctx.save();
+          // Bonus Glow
+          ctx.fillStyle = 'rgba(229, 185, 88, 0.3)';
           ctx.beginPath();
-          ctx.arc(centerX - r * 0.25, centerY - r * 0.25, r * 0.35, 0, Math.PI * 2);
+          ctx.arc(cx, cy, r * 1.8 * pulse, 0, Math.PI * 2);
           ctx.fill();
+
+          // Countdown Ring
+          const ratio = this.bonusFood.duration / this.bonusFood.maxDuration;
+          ctx.strokeStyle = 'rgba(229, 185, 88, 0.8)';
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.arc(cx, cy, r * 1.25, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * ratio);
+          ctx.stroke();
+
+          // Star/Diamond Core (with golden glow)
+          ctx.shadowColor = '#f3d27a';
+          ctx.shadowBlur = 20;
+          ctx.fillStyle = '#e5b958';
+          ctx.beginPath();
+          ctx.arc(cx, cy, r * pulse, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.shadowBlur = 0;
+
+          // Star highlight
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 12px ' + getComputedStyle(document.body).fontFamily;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('★', cx, cy + 1);
 
           ctx.restore();
         }
@@ -1823,43 +2427,47 @@
         renderSnake(ctx, cs, progress) {
           if (this.snake.length === 0) return;
 
-          const snakeLen = this.snake.length;
-          const pad = 2.5; // Padding for rounded cells
+          const len = this.snake.length;
+          const pad = 2.5;
           const segSize = cs - pad * 2;
-          const cornerRadius = segSize * 0.38;
+          const headColor = getComputedStyle(document.body).getPropertyValue('--snake-head').trim() || '#5f9972';
+          const bodyStart = getComputedStyle(document.body).getPropertyValue('--snake-body-start').trim() || '#528a64';
+          const bodyEnd = getComputedStyle(document.body).getPropertyValue('--snake-body-end').trim() || '#386246';
 
           ctx.save();
 
-          // Render segments from tail to head
-          for (let i = snakeLen - 1; i >= 0; i--) {
+          for (let i = len - 1; i >= 0; i--) {
             const cur = this.snake[i];
             const prev = (this.prevSnake && this.prevSnake[i]) ? this.prevSnake[i] : cur;
 
-            // Interpolate position
             const interpX = prev.x + (cur.x - prev.x) * progress;
             const interpY = prev.y + (cur.y - prev.y) * progress;
 
-            const px = interpX * cs + pad;
-            const py = interpY * cs + pad;
+            // Tail Tapering
+            const taper = i > len - 4 ? Math.max(0.65, 1 - (i - (len - 4)) * 0.1) : 1.0;
+            const adjustedSize = segSize * taper;
+            const offset = (segSize - adjustedSize) / 2;
 
-            // Segment styling: gradient from head to tail
-            const t = i / Math.max(snakeLen - 1, 1);
+            const px = interpX * cs + pad + offset;
+            const py = interpY * cs + pad + offset;
+            const radius = adjustedSize * 0.38;
+
             if (i === 0) {
-              // Snake Head
-              ctx.fillStyle = '#5f9972';
+              ctx.shadowColor = headColor;
+              ctx.shadowBlur = 12;
+              ctx.fillStyle = headColor;
             } else {
-              // Body to Tail transition (Muted forest / sage green)
-              const r = Math.round(72 * (1 - t) + 48 * t);
-              const g = Math.round(124 * (1 - t) + 90 * t);
-              const b = Math.round(90 * (1 - t) + 64 * t);
-              ctx.fillStyle = `rgb(${r},${g},${b})`;
+              ctx.shadowColor = bodyStart;
+              ctx.shadowBlur = 4;
+              const t = i / Math.max(len - 1, 1);
+              ctx.fillStyle = this.interpolateColor(bodyStart, bodyEnd, t);
             }
 
-            // Draw rounded segment
-            this.drawRoundedRect(ctx, px, py, segSize, segSize, cornerRadius);
+            this.drawRoundedRect(ctx, px, py, adjustedSize, adjustedSize, radius);
+            ctx.shadowBlur = 0;
 
-            // Connect adjacent segments for seamless organic look
-            if (i < snakeLen - 1) {
+            // Connect Segments
+            if (i < len - 1) {
               const next = this.snake[i + 1];
               const nextPrev = (this.prevSnake && this.prevSnake[i + 1]) ? this.prevSnake[i + 1] : next;
               const nextInterpX = nextPrev.x + (next.x - nextPrev.x) * progress;
@@ -1868,25 +2476,38 @@
               const dx = cur.x - next.x;
               const dy = cur.y - next.y;
 
-              // Only bridge if adjacent
               if (Math.abs(dx) <= 1 && Math.abs(dy) <= 1 && (Math.abs(dx) + Math.abs(dy) === 1)) {
-                const midX = (interpX + nextInterpX) * 0.5 * cs + pad;
-                const midY = (interpY + nextInterpY) * 0.5 * cs + pad;
-                const bridgeW = dx !== 0 ? cs : segSize;
-                const bridgeH = dy !== 0 ? cs : segSize;
                 const bx = (Math.min(interpX, nextInterpX) * cs) + pad;
                 const by = (Math.min(interpY, nextInterpY) * cs) + pad;
+                const bridgeW = dx !== 0 ? cs : segSize;
+                const bridgeH = dy !== 0 ? cs : segSize;
                 ctx.fillRect(bx, by, bridgeW, bridgeH);
               }
             }
 
-            // Draw Eyes on Head
+            // Head details (Eyes & Tongue)
             if (i === 0) {
-              this.renderEyes(ctx, px, py, segSize, this.direction);
+              this.renderEyes(ctx, px, py, adjustedSize, this.direction);
+              this.renderTongue(ctx, px, py, adjustedSize, this.direction);
             }
           }
 
           ctx.restore();
+        }
+
+        interpolateColor(color1, color2, factor) {
+          // Fallback if hex parsing isn't exact
+          if (color1.startsWith('#') && color2.startsWith('#')) {
+            const c1 = parseInt(color1.slice(1), 16);
+            const c2 = parseInt(color2.slice(1), 16);
+            const r1 = (c1 >> 16) & 255, g1 = (c1 >> 8) & 255, b1 = c1 & 255;
+            const r2 = (c2 >> 16) & 255, g2 = (c2 >> 8) & 255, b2 = c2 & 255;
+            const r = Math.round(r1 + factor * (r2 - r1));
+            const g = Math.round(g1 + factor * (g2 - g1));
+            const b = Math.round(b1 + factor * (b2 - b1));
+            return `rgb(${r},${g},${b})`;
+          }
+          return color1;
         }
 
         drawRoundedRect(ctx, x, y, width, height, radius) {
@@ -1905,9 +2526,9 @@
         }
 
         renderEyes(ctx, px, py, size, dir) {
-          const eyeRadius = size * 0.12;
-          const eyePupil = size * 0.06;
-          let e1x = 0, e1y = 0, e2x = 0, e2y = 0;
+          const eyeRadius = size * 0.13;
+          const eyePupil = size * 0.07;
+          let e1x, e1y, e2x, e2y;
 
           if (dir === DIR.RIGHT) {
             e1x = px + size * 0.72; e1y = py + size * 0.28;
@@ -1923,7 +2544,7 @@
             e2x = px + size * 0.72; e2y = py + size * 0.72;
           }
 
-          ctx.fillStyle = '#0e1012';
+          ctx.fillStyle = '#0a0d10';
           ctx.beginPath();
           ctx.arc(e1x, e1y, eyeRadius, 0, Math.PI * 2);
           ctx.arc(e2x, e2y, eyeRadius, 0, Math.PI * 2);
@@ -1936,31 +2557,45 @@
           ctx.fill();
         }
 
+        renderTongue(ctx, px, py, size, dir) {
+          // Flickers out for ~15 frames every ~180 frames
+          if (this.tongueTimer > 15) return;
+
+          ctx.save();
+          ctx.strokeStyle = '#e11d48';
+          ctx.lineWidth = 1.8;
+          ctx.beginPath();
+
+          let startX = px + size * 0.5;
+          let startY = py + size * 0.5;
+          let endX = startX + dir.x * (size * 0.7);
+          let endY = startY + dir.y * (size * 0.7);
+
+          ctx.moveTo(startX + dir.x * (size * 0.45), startY + dir.y * (size * 0.45));
+          ctx.lineTo(endX, endY);
+          ctx.stroke();
+          ctx.restore();
+        }
+
         /* --------------------------------------------------------------------
-         * EVENT LISTENERS & INPUT HANDLING
+         * EVENT LISTENERS & CONTROLS
          * -------------------------------------------------------------------- */
         bindEvents() {
-          // Keyboard Input
           window.addEventListener('keydown', (e) => {
             const code = e.code || e.key;
 
-            // Space: Start Game
             if (e.code === 'Space') {
               e.preventDefault();
-              if (this.state === STATES.MENU) {
-                this.startGame();
-              }
+              if (this.state === STATES.MENU) this.startGame();
               return;
             }
 
-            // P: Pause / Resume
             if (code === 'KeyP' || code === 'p' || code === 'P') {
               e.preventDefault();
               this.togglePause();
               return;
             }
 
-            // C: Restart after game over
             if (code === 'KeyC' || code === 'c' || code === 'C') {
               if (this.state === STATES.GAMEOVER) {
                 e.preventDefault();
@@ -1969,7 +2604,6 @@
               }
             }
 
-            // Q: Quit to Menu after game over
             if (code === 'KeyQ' || code === 'q' || code === 'Q') {
               if (this.state === STATES.GAMEOVER || this.state === STATES.PAUSED) {
                 e.preventDefault();
@@ -1978,7 +2612,6 @@
               }
             }
 
-            // Escape: Close modals
             if (code === 'Escape') {
               if (this.howToOverlay.classList.contains('active')) {
                 this.howToOverlay.classList.remove('active');
@@ -1990,7 +2623,6 @@
               }
             }
 
-            // Arrow keys & WASD
             switch (e.key) {
               case 'ArrowUp':
               case 'w':
@@ -2019,11 +2651,8 @@
             }
           });
 
-          // Touch Controls (Swipe Detection on Canvas)
-          let touchStartX = 0;
-          let touchStartY = 0;
-          let touchStartTime = 0;
-
+          // Touch Gestures
+          let touchStartX = 0, touchStartY = 0, touchStartTime = 0;
           this.boardContainer.addEventListener('touchstart', (e) => {
             if (e.touches.length === 1) {
               touchStartX = e.touches[0].clientX;
@@ -2038,7 +2667,6 @@
               const diffY = e.changedTouches[0].clientY - touchStartY;
               const duration = performance.now() - touchStartTime;
 
-              // Swipe threshold: 24px within 500ms
               if (duration < 500 && (Math.abs(diffX) > 24 || Math.abs(diffY) > 24)) {
                 if (Math.abs(diffX) > Math.abs(diffY)) {
                   this.queueDirection(diffX > 0 ? DIR.RIGHT : DIR.LEFT);
@@ -2049,13 +2677,9 @@
             }
           }, { passive: true });
 
-          // Touch D-Pad Buttons
-          const dpadUp = document.getElementById('dpad-btn-up');
-          const dpadDown = document.getElementById('dpad-btn-down');
-          const dpadLeft = document.getElementById('dpad-btn-left');
-          const dpadRight = document.getElementById('dpad-btn-right');
-
-          const bindDpad = (btn, dir) => {
+          // Touch D-Pad
+          const bindDpad = (id, dir) => {
+            const btn = document.getElementById(id);
             const handle = (e) => {
               e.preventDefault();
               this.sound.playClick();
@@ -2065,22 +2689,22 @@
             btn.addEventListener('mousedown', handle);
           };
 
-          bindDpad(dpadUp, DIR.UP);
-          bindDpad(dpadDown, DIR.DOWN);
-          bindDpad(dpadLeft, DIR.LEFT);
-          bindDpad(dpadRight, DIR.RIGHT);
+          bindDpad('dpad-btn-up', DIR.UP);
+          bindDpad('dpad-btn-down', DIR.DOWN);
+          bindDpad('dpad-btn-left', DIR.LEFT);
+          bindDpad('dpad-btn-right', DIR.RIGHT);
 
           // Top Header Buttons
+          this.btnFullscreen.addEventListener('click', () => this.toggleFullscreen());
           this.btnSoundToggle.addEventListener('click', () => this.toggleSound());
           this.btnPause.addEventListener('click', () => this.togglePause());
-
           this.btnSettingsOpen.addEventListener('click', () => {
             this.sound.playClick();
             if (this.state === STATES.PLAYING) this.pauseGame();
             this.settingsOverlay.classList.add('active');
           });
 
-          // Start Menu Buttons
+          // Start Menu
           this.btnStartPlay.addEventListener('click', () => this.startGame());
           this.btnOpenHowTo.addEventListener('click', () => {
             this.sound.playClick();
@@ -2091,12 +2715,19 @@
             this.settingsOverlay.classList.add('active');
           });
 
-          // Pause Menu Buttons
+          // Theme Chips in Start Screen
+          document.querySelectorAll('.theme-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+              const theme = chip.getAttribute('data-theme');
+              this.sound.playClick();
+              this.setTheme(theme);
+            });
+          });
+
+          // Pause & GameOver Buttons
           this.btnResumeGame.addEventListener('click', () => this.resumeGame());
           this.btnPauseRestart.addEventListener('click', () => this.startGame());
           this.btnPauseQuit.addEventListener('click', () => this.quitToMenu());
-
-          // Game Over Buttons
           this.btnGameoverRestart.addEventListener('click', () => this.startGame());
           this.btnGameoverQuit.addEventListener('click', () => this.quitToMenu());
 
@@ -2110,13 +2741,14 @@
             this.settingsOverlay.classList.remove('active');
           });
 
-          // Settings Controls Change
+          // Settings Controls
           this.settingSound.addEventListener('change', () => this.saveCurrentSettings());
           this.settingReducedMotion.addEventListener('change', () => this.saveCurrentSettings());
+          this.settingTheme.addEventListener('change', (e) => this.setTheme(e.target.value));
           this.settingSpeed.addEventListener('change', () => this.saveCurrentSettings());
           this.settingDpad.addEventListener('change', () => this.saveCurrentSettings());
 
-          // Window Resize & Visibility
+          // Resize & Visibility
           window.addEventListener('resize', () => {
             this.resizeCanvas();
             this.render();
@@ -2130,10 +2762,22 @@
         }
       }
 
-      // Initialize on DOM load
-      window.addEventListener('DOMContentLoaded', () => {
-        window.snakeGameInstance = new SnakeGame();
-      });
+      const initGame = () => {
+        try {
+          window.snakeGameInstance = new SnakeGame();
+          window.initSuccess = true;
+        } catch (err) {
+          window.initError = err ? (err.stack || err.message || String(err)) : 'unknown error';
+          console.error("SnakeGame Init Error:", err);
+        }
+      };
+      window.initGame = initGame;
+
+      if (document.readyState === 'loading') {
+        window.addEventListener('DOMContentLoaded', initGame);
+      } else {
+        initGame();
+      }
     })();
   </script>
 </body>
